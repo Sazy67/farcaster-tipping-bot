@@ -1,0 +1,13 @@
+User-agent: *
+Allow: /
+
+# Farcaster frame endpoints
+Allow: /api/frames/
+Allow: /api/frame-actions
+
+# API endpoints
+Disallow: /api/transactions/
+Disallow: /api/notifications/
+
+# Sitemap
+Sitemap: /sitemap.xml

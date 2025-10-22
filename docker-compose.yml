@@ -1,0 +1,56 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=postgresql://postgres:password@db:5432/farcaster_tipping_bot
+      - REDIS_URL=redis://redis:6379
+      - NEXT_PUBLIC_BASE_RPC_URL=https://mainnet.base.org
+      - NEXT_PUBLIC_BASE_CHAIN_ID=8453
+      - PLATFORM_WALLET_ADDRESS=${PLATFORM_WALLET_ADDRESS}
+      - PLATFORM_FEE_PERCENTAGE=1
+      - FARCASTER_HUB_URL=https://hub.farcaster.xyz
+      - NEXT_PUBLIC_FARCASTER_DEVELOPER_FID=${FARCASTER_DEVELOPER_FID}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NEXTAUTH_URL=http://localhost:3000
+    depends_on:
+      - db
+      - redis
+    restart: unless-stopped
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=farcaster_tipping_bot
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    restart: unless-stopped
+
+  # Optional: Database admin interface
+  adminer:
+    image: adminer
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  redis_data:

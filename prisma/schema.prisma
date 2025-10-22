@@ -1,0 +1,80 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                   String         @id @default(cuid())
+  fid                  String         @unique
+  walletAddress        String?        @map("wallet_address")
+  notificationEnabled  Boolean        @default(true) @map("notification_enabled")
+  createdAt           DateTime       @default(now()) @map("created_at")
+  updatedAt           DateTime       @updatedAt @map("updated_at")
+  
+  // Relations
+  sentTransactions     Transaction[]  @relation("SentTransactions")
+  receivedTransactions Transaction[]  @relation("ReceivedTransactions")
+  notifications        Notification[]
+
+  @@map("users")
+}
+
+model Transaction {
+  id              String            @id @default(cuid())
+  senderFid       String            @map("sender_fid")
+  recipientFid    String            @map("recipient_fid")
+  amount          Decimal           @db.Decimal(18, 8)
+  platformFee     Decimal           @map("platform_fee") @db.Decimal(18, 8)
+  recipientAmount Decimal           @map("recipient_amount") @db.Decimal(18, 8)
+  token           TokenType         @default(ETH)
+  txHash          String            @unique @map("tx_hash")
+  feeTxHash       String?           @map("fee_tx_hash")
+  status          TransactionStatus @default(pending)
+  createdAt       DateTime          @default(now()) @map("created_at")
+  confirmedAt     DateTime?         @map("confirmed_at")
+  
+  // Relations
+  sender          User              @relation("SentTransactions", fields: [senderFid], references: [fid])
+  recipient       User              @relation("ReceivedTransactions", fields: [recipientFid], references: [fid])
+  notifications   Notification[]
+
+  @@map("transactions")
+}
+
+model Notification {
+  id            String           @id @default(cuid())
+  userFid       String           @map("user_fid")
+  transactionId String           @map("transaction_id")
+  type          NotificationType
+  delivered     Boolean          @default(false)
+  createdAt     DateTime         @default(now()) @map("created_at")
+  
+  // Relations
+  user          User             @relation(fields: [userFid], references: [fid])
+  transaction   Transaction      @relation(fields: [transactionId], references: [id])
+
+  @@map("notifications")
+}
+
+enum TokenType {
+  ETH
+  USDC
+}
+
+enum TransactionStatus {
+  pending
+  confirmed
+  failed
+}
+
+enum NotificationType {
+  tip_received
+  tip_sent
+}
