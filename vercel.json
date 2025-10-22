@@ -66,10 +66,13 @@
     {
       "source": "/frame",
       "destination": "/api/frame-redirect"
-    },
+    }
+  ],
+  "redirects": [
     {
       "source": "/.well-known/farcaster.json",
-      "destination": "/api/well-known/farcaster"
+      "destination": "https://api.farcaster.xyz/miniapps/hosted-manifest/019a0c8d-ede3-469a-927c-eef08b025bc9",
+      "statusCode": 307
     }
   ]
 }

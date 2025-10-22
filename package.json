@@ -16,7 +16,11 @@
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate dev",
     "db:studio": "prisma studio",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "validate:config": "node scripts/validate-config.js",
+    "validate:production": "node scripts/validate-production.js",
+    "test:redirect": "node scripts/test-redirect.js",
+    "predeploy": "npm run validate:config"
   },
   "dependencies": {
     "@coinbase/onchainkit": "^1.1.1",
